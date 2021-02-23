@@ -1,9 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const Task = () => {
   const [taskInput, setTaskInput] = useState("");
   const [taskList, setTaskList] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("https://taskmanager-84565-default-rtdb.firebaseio.com/tasks.json")
+      .then((res) => {
+        console.log(res);
+        const tasksData = res.data;
+        const arrTasks = [];
+        for (const key in tasksData) {
+          arrTasks.push({ id: key, name: tasksData[key].name });
+        }
+        setTaskList(arrTasks);
+      });
+    return () => {
+      console.log("Cleanup");
+    };
+  }, [taskInput]);
 
   const handleInputChange = (event) => {
     setTaskInput(event.target.value);
@@ -42,7 +59,7 @@ const Task = () => {
       </button>
       <ul>
         {taskList.map((task) => (
-          <li key={task}>{task}</li>
+          <li key={task.id}>{task.name}</li>
         ))}
       </ul>
     </React.Fragment>
